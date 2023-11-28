@@ -1,6 +1,0 @@
-FROM 3-9-bullseye
-WORKDIR src
-COPY . .
-RUN pip install -r requirements.txt
-CMD ["python", "-m", "pymotion"]
-#EXPOSE 3000
