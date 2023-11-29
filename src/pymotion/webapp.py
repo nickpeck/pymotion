@@ -12,6 +12,14 @@ class PyMotionWeb:
     def index(self):
         return self._main_content()
 
+    def static(self):
+        pass
+
+    static._cp_config={
+        "tools.staticdir.on" : True,
+        "tools.staticdir.dir": "/usr/src/app/archive"
+    }
+
     def _main_content(self):
         banner = 'The camera is running'
         action =  '<a href="/suspend">Suspend</a>'
