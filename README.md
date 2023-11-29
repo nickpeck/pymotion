@@ -13,7 +13,9 @@ docker build -t pymotion .
 If you want to override any settings, create a file called pymotion.yaml (see pymotion.yaml.sample for example).
 
 In the following, be sure to set --device to the device file representing your camera.
+
 The directory .archive/ can be any folder on the container host where you want to store your images.
+
 Expose the correct host web ports that you wish to view the admin UI on.
 ~~~
 docker run \
@@ -28,5 +30,4 @@ The web UI can then be viewed at http://127.0.0.1:8080
 
 ## TODO
 - publish docker image
-- protect web ui via basic auth
 - Add Some simple modules to broadcast an alert via SNS/SES etc...
