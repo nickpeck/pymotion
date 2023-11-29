@@ -29,8 +29,8 @@ class PyMotionWeb:
         archived = self._get_archived_image_links()
         return f"""
             <div>
-            <p style="color:red;">{banner}</p>
             <h1>Motion Sensor</h1>
+            <p style="color:red;">{banner}</p>
             <p>{action}<p>
             <h2> Latest Images </h2>
             <img width=300 src="/static/ImageA.bmp"/>
