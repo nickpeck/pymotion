@@ -26,7 +26,7 @@ class PyMotionConfig:
         opts = {}
         try:
             with open('pymotion.yaml', 'r') as file:
-                opts.update(yaml.safe_load(file))
+                opts.update(yaml.safe_load(file)['pymotion'])
         except FileNotFoundError:
             logger.warn("No pymotion.yaml found, initializing using defaults")
         return PyMotionConfig(**opts)

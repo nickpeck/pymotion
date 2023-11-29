@@ -1,0 +1,11 @@
+pymotion:
+    initialWaitPeriodSeconds: 5
+    pollingIntervalSeconds: 10
+    photoIntervalSeconds: 1
+    threshold: 0.5
+    cameraName: "/dev/video0"
+    archiveDirectory: "archive"
+    modulesDirectory: "./src/modules"
+    archiveRetentionDays: 10
+    maxArchiveSizeMB: 500
+    serverPort: 8080
