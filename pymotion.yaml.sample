@@ -4,8 +4,6 @@ pymotion:
     photoIntervalSeconds: 1
     threshold: 0.5
     cameraName: "/dev/video0"
-    archiveDirectory: "archive"
-    modulesDirectory: "./src/modules"
     archiveRetentionDays: 10
     maxArchiveSizeMB: 500
 server:
@@ -13,3 +11,6 @@ server:
     serverPort: 8080
     username: "admin"
     password: "secret"
+plugins:
+    sampleplugin:
+        greeting: This is a sample plugin. Customize it to your needs...

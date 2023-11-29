@@ -1,9 +1,12 @@
 import os
 import datetime
+import importlib
 import math
 import logging
 import stat
+import glob
 from threading import Thread
+import traceback
 from time import sleep
 from shutil import copy, rmtree
 
@@ -18,6 +21,9 @@ from . configuration import PyMotionConfig
 
 logger = logging.getLogger()
 
+ARCHIVE_DIR = "archive"
+PLUGINS_DIR = "plugins"
+
 class MotionSensor(Thread):
 
     def __init__(self, config: PyMotionConfig):
@@ -25,9 +31,10 @@ class MotionSensor(Thread):
         self.config = config
         self.should_terminate = False
         self.is_running = True
-
         pygame.init()
         pygame.camera.init()
+        self.plugins = self._load_plugins()
+        logger.info("Loaded plugins: {}".format(list(self.plugins.keys())))
         cameraList = pygame.camera.list_cameras()
         if not cameraList:
             logger.error("No cameras. Exiting.")
@@ -40,7 +47,6 @@ class MotionSensor(Thread):
             logger.warn("Camera '{}' not found. Using camera '{}'".format(self.config.cameraName, cameraList[0]))
             self.camera = pygame.camera.Camera(cameraList[0], (800, 800))
         self.camera.start()
-        print(dir(self.camera))
 
     def run(self):
         logger.info("Initialising camera")
@@ -49,7 +55,7 @@ class MotionSensor(Thread):
         while True:
             if self.should_terminate:
                 break
-            if os.path.getsize(self.config.archiveDirectory) / 1000000 > self.config.maxArchiveSizeMB:
+            if os.path.getsize(ARCHIVE_DIR) / 1000000 > self.config.maxArchiveSizeMB:
                 self._purge_archive_dir()
             self._rotate_archive_contents()
             if self.is_running:
@@ -71,11 +77,28 @@ class MotionSensor(Thread):
             return
         self.camera.start()
         self.is_running = True
+
+    def _load_plugins(self):
+        plugins = {}
+        plugin_modules = glob.glob(os.path.join(PLUGINS_DIR, "*.py"))
+        mod_names = [ os.path.basename(f)[:-3] for f in plugin_modules if os.path.isfile(f) and not f.endswith('__init__.py')]
+        for mod_name in mod_names:
+            conf = self.config.plugins.get(mod_name, None)
+            if conf is None:
+                continue
+            try:
+                plugins[mod_name] = {
+                    "module": importlib.import_module("plugins." + mod_name),
+                    "config": conf
+                }
+            except ModuleNotFoundError as mnfe:
+                logger.warn("Could not load plugin {}: {}".format(mod_name, mnfe.msg))
+        return plugins
 		
     def _capture_and_compare(self):
-        file1 = os.path.join(self.config.archiveDirectory, "ImageA.bmp")
-        file2 = os.path.join(self.config.archiveDirectory, "ImageB.bmp")
-        key_image = os.path.join(self.config.archiveDirectory, "key_image.bmp")
+        file1 = os.path.join(ARCHIVE_DIR, "ImageA.bmp")
+        file2 = os.path.join(ARCHIVE_DIR, "ImageB.bmp")
+        key_image = os.path.join(ARCHIVE_DIR, "key_image.bmp")
         logger.info("taking photo1")
         self._capture_image(file1)
         logger.info("...ok. pausing...")
@@ -110,17 +133,17 @@ class MotionSensor(Thread):
 
     def _rotate_archive_contents(self):
         delta = datetime.timedelta(days=self.config.archiveRetentionDays)
-        for obj in os.listdir(self.config.archiveDirectory):
-            stats = os.stat(os.path.join(self.config.archiveDirectory, obj))
+        for obj in os.listdir(ARCHIVE_DIR):
+            stats = os.stat(os.path.join(ARCHIVE_DIR, obj))
             if not stat.S_IFDIR:
                 continue
             if datetime.datetime.fromtimestamp(stat.ST_CTIME) > datetime.datetime.now() - delta:
                 log.warn("Archive directory '{}' is older than retention period and will be removed")
-                rmtree(os.path.join(self.config.archiveDirectory, obj))
+                rmtree(os.path.join(ARCHIVE_DIR, obj))
 
     def _purge_archive_dir(self):
         log.warn("Archive directory is larger than {}MB and will be purged.".format(self.config.maxArchiveSizeMB))
-        for obj in os.listdir(self.config.archiveDirectory):
+        for obj in os.listdir(ARCHIVE_DIR):
             if not stat.S_IFDIR:
                 continue
             rmtree(obj)
@@ -133,13 +156,23 @@ class MotionSensor(Thread):
             diff: BmpImageFile):
         logger.info("Motion alert! Archiving images.")
         data_prefix = datetime.datetime.now().isoformat().replace(":", "-")
-        os.mkdir(os.path.join(self.config.archiveDirectory, data_prefix))
+        os.mkdir(os.path.join(ARCHIVE_DIR, data_prefix))
         copy(
-            os.path.join(self.config.archiveDirectory, "ImageA.bmp"),
-            os.path.join(self.config.archiveDirectory, data_prefix, "ImageA.bmp"))
+            os.path.join(ARCHIVE_DIR, "ImageA.bmp"),
+            os.path.join(ARCHIVE_DIR, data_prefix, "ImageA.bmp"))
         copy(
-            os.path.join(self.config.archiveDirectory, "ImageB.bmp"),
-            os.path.join(self.config.archiveDirectory, data_prefix, "ImageB.bmp"))
+            os.path.join(ARCHIVE_DIR, "ImageB.bmp"),
+            os.path.join(ARCHIVE_DIR, data_prefix, "ImageB.bmp"))
         copy(
-            os.path.join(self.config.archiveDirectory, "key_image.bmp"),
-            os.path.join(self.config.archiveDirectory, data_prefix, "key_image.bmp"))
+            os.path.join(ARCHIVE_DIR, "key_image.bmp"),
+            os.path.join(ARCHIVE_DIR, data_prefix, "key_image.bmp"))
+        for name, plugin in self.plugins.items():
+            try:
+                plugin['module'].on_motion_detected(
+                    threatRating,
+                    image1,
+                    image2,
+                    diff,
+                    plugin['config'])
+            except Exception as e:
+                logger.warn(traceback.format_exc())
