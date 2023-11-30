@@ -1,7 +1,7 @@
 import os
 import cherrypy
 
-from . motionsensor import MotionSensor
+from . motionsensor import MotionSensor, ARCHIVE_DIR
 
 class PyMotionWeb:
 
@@ -28,6 +28,12 @@ class PyMotionWeb:
             action = '<a href="/resume">Resume</a>'
         archived = self._get_archived_image_links()
         return f"""
+            <!DOCTYPE html>
+            <html>
+            <meta charset="UTF-8">
+            <title>PyMotion</title>
+            </meta
+            <body>
             <div>
             <h1>Motion Sensor</h1>
             <p style="color:red;">{banner}</p>
@@ -40,23 +46,25 @@ class PyMotionWeb:
                 {archived}
             <ul>
             </div>
+            </body>
+            </html>
         """
 
     def _get_archived_image_links(self):
         files = []
-        for _dir in os.listdir(self.motionsensor.config.archiveDirectory):
-            if not os.path.isdir(os.path.join(self.motionsensor.config.archiveDirectory, _dir)):
+        for _dir in os.listdir("archive"):
+            if not os.path.isdir(os.path.join(ARCHIVE_DIR, _dir)):
                 continue
-            for image in os.listdir(os.path.join(self.motionsensor.config.archiveDirectory, _dir)):
+            for image in os.listdir(os.path.join(ARCHIVE_DIR, _dir)):
                 files.append(f'<li><a href="/static/{_dir}/{image}" target="_blank"/>{_dir}/{image}</li>'.format(_dir, image))
         return "".join(files)
 
     @cherrypy.expose
     def suspend(self):
         self.motionsensor.suspend()
-        return self._main_content()
+        raise cherrypy.HTTPRedirect('/')
 
     @cherrypy.expose
     def resume(self):
         self.motionsensor.resume()
-        return self._main_content()
+        raise cherrypy.HTTPRedirect('/')
