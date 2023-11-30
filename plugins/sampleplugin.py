@@ -1,3 +1,8 @@
+"""
+illustrates a plugin
+"""
+
+import logging
 from PIL.BmpImagePlugin import BmpImageFile
 
 def on_motion_detected(
@@ -6,4 +11,4 @@ def on_motion_detected(
             image2: BmpImageFile,
             diff: BmpImageFile,
             config: dict):
-    print(config['greeting'])
+    logging.getLogger().info(config['greeting'])
