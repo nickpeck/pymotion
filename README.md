@@ -8,10 +8,8 @@ The sensor snaps two camera images at a specified interval and compares the diff
 The web ui is extremely simple, but sufficient given that I might often want to access quickly via a VPN/cellphone. You can suspend the camera as required by visiting the page.
 
 ## Usage
-For portability (and given the complexity of getting some of the dependances to install on the Pi) this is intended to be distributed via a Docker image. To build:
-~~~
-docker build -t pymotion .
-~~~
+For portability (and given the complexity of getting some of the dependances to install on the Pi) this is intended to be distributed via a Docker image.
+
 If you want to override any settings, create a file called pymotion.yaml (see pymotion.yaml.sample for example).
 
 In the following, be sure to set --device to the device file representing your camera.
