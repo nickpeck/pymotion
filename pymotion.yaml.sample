@@ -14,3 +14,10 @@ server:
 plugins:
     sampleplugin:
         greeting: This is a sample plugin. Customize it to your needs...
+    #sns:
+    #    topicARN: ""
+    #ses:
+    #    source: ""
+    #    toAddresses:
+    #        - ""
+    #    deviceUrl: "http://127.0.0.1:8080"
