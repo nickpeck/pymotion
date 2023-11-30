@@ -8,7 +8,7 @@ The sensor snaps two camera images at a specified interval and compares the diff
 The web ui is extremely simple, but sufficient given that I might often want to access quickly via a VPN/cellphone.
 
 ## Usage
-For portability this is intended to be distributed via Docker image. To build:
+For portability this is intended to be distributed via a Docker image. To build:
 ~~~
 docker build -t pymotion .
 ~~~
@@ -39,7 +39,7 @@ plugins:
         ...define key/value pairs here, as required
 ~~~
 
-(**) If you intent to use the sns or ses plugins, you will need to create an IAM Role and specify the appropriate environment variables for the IAM role in your run commmand:
+(**) If you intend to use the sns or ses plugins, you will need to create an IAM Role and specify the appropriate environment variables for the IAM role in your run commmand:
 ~~~
 -e AWS_ACCESS_KEY_ID=********** -e AWS_SECRET_ACCESS_KEY=********** -e AWS_DEFAULT_REGION=**********
 ~~~
