@@ -39,6 +39,11 @@ plugins:
         ...define key/value pairs here, as required
 ~~~
 
+(**) If you intent to use the sns or ses plugins, you will need to create an IAM Role and specify the appropriate environment variables for the IAM role in your run commmand:
+~~~
+-e AWS_ACCESS_KEY_ID=********** -e AWS_SECRET_ACCESS_KEY=********** -e AWS_DEFAULT_REGION=**********
+~~~
+
 The web UI can then be viewed at http://127.0.0.1:8080
 
 ## TODO
