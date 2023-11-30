@@ -57,7 +57,8 @@ class PyMotionWeb:
                 continue
             for image in os.listdir(os.path.join(ARCHIVE_DIR, _dir)):
                 files.append(f'<li><a href="/static/{_dir}/{image}" target="_blank"/>{_dir}/{image}</li>'.format(_dir, image))
-        return "".join(files)
+        sorted_files = sorted(files, reverse=True)
+        return "".join(sorted_files)
 
     @cherrypy.expose
     def suspend(self):
